@@ -1,0 +1,42 @@
+TeMU=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt *.conf" {
+ workflow.rb
+ bin=bin filter="*"{
+ }
+ lib=lib {
+  H12O=H12O{
+   corpus.rb
+  }
+ }
+ test=test {
+ }
+ data=data filter="*"{
+ }
+ software=software{
+  opt=opt{
+   TeMU-NeuroNER=TeMU-NeuroNER filter="*.py"{
+    brat_to_conll.py
+    conll_to_brat.py
+    dataset.py
+    entity_lstm.py
+    evaluate.py
+    main.py
+    neuroner.py
+    prepare_pretrained_model.py
+    test_main.py
+    train.py
+    utils.py
+    utils_nlp.py
+    utils_plots.py
+    utils_tf.py
+   }
+  }
+ }
+ www=www{
+  views=views{
+   main=main{
+   }
+   entity=entity{
+   }
+  }
+ }
+}
