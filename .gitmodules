@@ -1,0 +1,3 @@
+[submodule "software/scm/TemuSTS"]
+	path = software/scm/TemuSTS
+	url = https://github.com/TeMU-BSC/TemuSTS.git

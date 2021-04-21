@@ -2,11 +2,6 @@ TeMU=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt
  workflow.rb
  bin=bin filter="*"{
  }
- lib=lib {
-  H12O=H12O{
-   corpus.rb
-  }
- }
  test=test {
  }
  data=data filter="*"{
@@ -28,6 +23,14 @@ TeMU=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt
     utils_nlp.py
     utils_plots.py
     utils_tf.py
+   }
+   TemuSTS=TemuSTS filter="*"{
+    LICENSE
+    README.md
+    TemuSTS.py
+    corpus.bin
+    ejemplo.png
+    requirements.txt
    }
   }
  }

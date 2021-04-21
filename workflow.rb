@@ -8,8 +8,8 @@ Misc.add_libdir if __FILE__ == $0
 module TeMU
   extend Workflow
 
-  input :dataset, :string, "Dataset directory"
-  input :model, :file, "Dataset directory", nil, :nofile => true
+  input :dataset, :string, "Dataset directory or name"
+  input :model, :file, "Model directory or name", nil, :nofile => true
   input :embeddings, :file, "Embeddings file", nil, :nofile => true
   task :neuro_ner => :tsv do |dataset, model,embeddings|
 
