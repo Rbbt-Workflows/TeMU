@@ -1,5 +1,6 @@
 TeMU=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt *.conf" {
  workflow.rb
+ requirements.pip
  lib=lib{
   te_MU.rb
  }

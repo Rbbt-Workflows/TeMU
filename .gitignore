@@ -2,5 +2,6 @@ pkg
 .source
 .save
 .crap
+__pycache__
 data
 share/models/
