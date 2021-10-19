@@ -49,6 +49,8 @@ module TeMU
       sleep 1
     end
 
+    spacy_lang = "es_core_news_sm"
+    CMD.cmd(:spacy, "download #{spacy_lang}")
     Open.write params, <<-EOF
 #----- Possible modes of operation -----------------------------------------------------------------------------------------------------------------#
 # training mode (from scratch): set train_model to True, and use_pretrained_model to False (if training from scratch).                        #
@@ -134,7 +136,7 @@ tagging_format = bioes
 tokenizer = spacy
 # spacylanguage should be either 'de' (German), 'en' (English) or 'fr' (French). (https://spacy.io/docs/api/language-models)
 # To install the spaCy language: `python -m spacy.de.download`; or `python -m spacy.en.download`; or `python -m spacy.fr.download`
-spacylanguage = es_core_news_sm
+spacylanguage = #{spacy_lang}
 
 # If remap_unknown_tokens is set to True, map to UNK any token that hasn't been seen in neither the training set nor the pre-trained token embeddings.
 remap_unknown_tokens_to_unk = True
