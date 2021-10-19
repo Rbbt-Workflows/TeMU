@@ -1,5 +1,8 @@
 TeMU=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt *.conf" {
  workflow.rb
+ lib=lib{
+  te_MU.rb
+ }
  bin=bin filter="*"{
  }
  test=test {
@@ -33,6 +36,9 @@ TeMU=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt
     requirements.txt
    }
   }
+ }
+ doc=doc filter="*"{
+  neuroner.md
  }
  www=www{
   views=views{

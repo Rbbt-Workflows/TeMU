@@ -3,26 +3,50 @@ require 'rbbt/workflow'
 
 Misc.add_libdir if __FILE__ == $0
 
-#require 'rbbt/sources/TeMU'
+require 'te_MU'
 
 module TeMU
   extend Workflow
 
-  input :dataset, :string, "Dataset directory or name"
-  input :model, :file, "Model directory or name", nil, :nofile => true
-  input :embeddings, :file, "Embeddings file", nil, :nofile => true
+  input :dataset, :file, "Dataset directory or name", nil, :nofile => true
+  input :model, :select, "Model directory or name", nil, :select_options => TeMU.models(:NeuroNER)
+  input :embeddings, :select, "Embeddings file", nil, :select_options => TeMU.models(:embeddings)
   task :neuro_ner => :tsv do |dataset, model,embeddings|
 
     params = file('parameters.ini')
     deploy = file('deploy')
     output = file('output')
 
-    model = Rbbt.share.models.TeMU.NeuroNER_models[model].find unless File.exists?(model) || model.include?("/")
+    model = Rbbt.share.models.TeMU.NeuroNER[model].find unless File.exists?(model) || model.include?("/")
     embeddings = Rbbt.share.models.TeMU.embeddings[embeddings].find unless File.exists?(embeddings) || embeddings.include?("/")
 
     Open.mkdir deploy
-    Dir.glob(File.expand_path(dataset) + "/*").each do |file|
-      Open.ln_s file, deploy
+
+    if not Misc.is_filename? dataset
+      extension = '.tar.gz'
+      new_dataset_file = 'archive.' + extension
+      Open.write(new_dataset_file, dataset, :mode => 'wb')
+      dataset =  new_dataset_file
+    end
+
+    # setup deploy directory
+    if File.directory?(dataset)
+      Dir.glob(File.expand_path(dataset) + "/*").each do |file|
+        Open.ln_s file, deploy
+      end
+    elsif dataset =~ /\.t(ar\.)?gz$/i
+      Misc.untar(dataset, deploy)
+    elsif dataset =~ /\.t(ar\.)?gz$/i
+      Misc.unzip(dataset, deploy)
+    else
+      Open.ln_s dataset, deploy
+    end
+
+    if deploy.glob("*").length == 1 && File.directory?(dir = deploy.glob("*").first)
+      dir.glob("*").each do |file|
+        Open.ln_s file, deploy
+      end
+      sleep 1
     end
 
     Open.write params, <<-EOF
@@ -110,7 +134,7 @@ tagging_format = bioes
 tokenizer = spacy
 # spacylanguage should be either 'de' (German), 'en' (English) or 'fr' (French). (https://spacy.io/docs/api/language-models)
 # To install the spaCy language: `python -m spacy.de.download`; or `python -m spacy.en.download`; or `python -m spacy.fr.download`
-spacylanguage = es
+spacylanguage = es_core_news_sm
 
 # If remap_unknown_tokens is set to True, map to UNK any token that hasn't been seen in neither the training set nor the pre-trained token embeddings.
 remap_unknown_tokens_to_unk = True
@@ -172,12 +196,6 @@ parameters_filepath = #{params}
       end
     end
     tsv
-  end
-
-  task :test => :text do
-    documents = TeMU::CORPUS.documents("toy-data")
-    documents.meddocan_pretrained
-    raise
   end
 end
 
