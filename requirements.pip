@@ -1,5 +1,6 @@
-tensorflow=1.15.0
+tensorflow==1.15.0
 matplotlib
 scipy
 spacy
 pycorenlp
+sklearn

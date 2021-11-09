@@ -10,7 +10,7 @@ module TeMU
 
   input :dataset, :file, "Dataset directory or name", nil, :nofile => true
   input :model, :select, "Model directory or name", nil, :select_options => TeMU.models(:NeuroNER)
-  input :embeddings, :select, "Embeddings file", nil, :select_options => TeMU.models(:embeddings)
+  input :embeddings, :select, "Embeddings file", TeMU.models(:embeddings).first, :select_options => TeMU.models(:embeddings)
   task :neuro_ner => :tsv do |dataset, model,embeddings|
 
     params = file('parameters.ini')
