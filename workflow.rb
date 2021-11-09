@@ -199,6 +199,8 @@ parameters_filepath = #{params}
     end
     tsv
   end
+
+  export :neuro_ner
 end
 
 #require 'TeMU/tasks/basic.rb'
