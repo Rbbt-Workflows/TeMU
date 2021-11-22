@@ -8,6 +8,29 @@ require 'te_MU'
 module TeMU
   extend Workflow
 
+
+  input :texts, :text, "JSON file with keys and texts as values"
+  task :keras => :json do |texts|
+
+    Open.write(texts, file('input.json'))
+
+    model_dir = Rbbt.share.models.TeMU.Keras.find
+
+    workdir = file('workdir')
+    Misc.in_dir workflow do
+      CMD.cmd_log("python software/ners/bin/darryl.py #{file('inputs.json')} --model_dir=#{model_dir} ...")
+    end
+
+    result = {}
+    Dir.glob(File.join(workdir, 'predictions', "*.txt")).each do |file|
+      code = FileUtils.basename(file, '.txt')
+
+      result[code] = Open.read(file)
+    end
+    
+    result.to_json
+  end
+
   input :dataset, :file, "Dataset directory or name", nil, :nofile => true
   input :model, :select, "Model directory or name", nil, :select_options => TeMU.models(:NeuroNER)
   input :embeddings, :select, "Embeddings file", TeMU.models(:embeddings).first, :select_options => TeMU.models(:embeddings)
@@ -36,8 +59,6 @@ module TeMU
       end
     elsif dataset =~ /\.t(ar\.)?gz$/i
       Misc.untar(dataset, deploy)
-    elsif dataset =~ /\.t(ar\.)?gz$/i
-      Misc.unzip(dataset, deploy)
     else
       Open.ln_s dataset, deploy
     end
@@ -199,6 +220,7 @@ parameters_filepath = #{params}
     end
     tsv
   end
+
 end
 
 #require 'TeMU/tasks/basic.rb'
