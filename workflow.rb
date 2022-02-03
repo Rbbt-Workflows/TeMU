@@ -99,7 +99,6 @@ module TeMU
     end
 
     spacy_lang = "es_core_news_sm"
-    CMD.cmd(:spacy, "download #{spacy_lang}")
     Open.write params, <<-EOF
 #----- Possible modes of operation -----------------------------------------------------------------------------------------------------------------#
 # training mode (from scratch): set train_model to True, and use_pretrained_model to False (if training from scratch).                        #
@@ -232,7 +231,14 @@ parameters_filepath = #{params}
     EOF
 
     Misc.in_dir(Rbbt.software.opt["TeMU-NeuroNER"].find) do
-      CMD.cmd_log("python #{Rbbt.software.opt["TeMU-NeuroNER/main.py"].find} --parameters_filepath '#{params}'")
+      begin
+        CMD.cmd_log("python #{Rbbt.software.opt["TeMU-NeuroNER/main.py"].find} --parameters_filepath '#{params}'")
+      rescue
+        raise $! if downloaded
+        CMD.cmd(:spacy, "download #{spacy_lang}")
+        downloaded = true
+        retry
+      end
     end
 
     tsv = TSV.setup({}, :key_field => "ID", :fields => ["Document", "Literal", "Type", "Start", "End"], :type => :list)
