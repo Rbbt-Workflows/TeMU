@@ -1,5 +1,6 @@
 require 'rbbt-util'
 require 'rbbt/workflow'
+require 'mimemagic'
 
 Misc.add_libdir if __FILE__ == $0
 
@@ -8,7 +9,7 @@ require 'te_MU'
 module TeMU
   extend Workflow
 
-  input :dataset, :file, "Dataset directory or name", nil, :nofile => true
+  input :dataset, :file, "Dataset directory, text file, or tar.gz name", nil, :nofile => true
   input :model, :select, "Model directory or name", nil, :select_options => TeMU.models(:NeuroNER)
   input :embeddings, :select, "Embeddings file", TeMU.models(:embeddings).first, :select_options => TeMU.models(:embeddings)
   task :neuro_ner => :tsv do |dataset, model,embeddings|
@@ -22,11 +23,34 @@ module TeMU
 
     Open.mkdir deploy
 
-    if not Misc.is_filename? dataset
-      extension = '.tar.gz'
-      new_dataset_file = 'archive.' + extension
-      Open.write(new_dataset_file, dataset, :mode => 'wb')
-      dataset =  new_dataset_file
+    if not Misc.is_filename?(dataset)
+      mime = MimeMagic.by_magic(dataset)
+
+      type = case mime
+             when nil
+               'txt'
+             else
+               mime.type
+             end
+
+      case type
+      when 'txt'
+        new_dataset_file = 'input.txt'
+        Open.write(new_dataset_file, dataset, :mode => 'w')
+        dataset =  new_dataset_file
+      when 'application/gzip'
+        extension = '.tar.gz'
+        new_dataset_file = 'archive' + extension
+        Open.write(new_dataset_file, dataset, :mode => 'wb')
+        dataset =  new_dataset_file
+      when 'application/zip'
+        extension = '.zip'
+        new_dataset_file = 'archive' + extension
+        Open.write(new_dataset_file, dataset, :mode => 'wb')
+        dataset =  new_dataset_file
+      end
+
+
     end
 
     # setup deploy directory
@@ -36,8 +60,10 @@ module TeMU
       end
     elsif dataset =~ /\.t(ar\.)?gz$/i
       Misc.untar(dataset, deploy)
-    elsif dataset =~ /\.t(ar\.)?gz$/i
-      Misc.unzip(dataset, deploy)
+    elsif dataset =~ /\.zip$/i
+      Misc.unzip_in_dir(dataset, deploy)
+    elsif dataset =~ /\.txt/i
+      Open.cp dataset, deploy[File.basename(dataset)]
     else
       Open.ln_s dataset, deploy
     end
